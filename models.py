@@ -22,10 +22,6 @@ class Availability(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     available_date: Mapped[object] = mapped_column(Date, nullable=False)
-    service_id: Mapped[int] = mapped_column(
-        ForeignKey("services.id"),
-        nullable=False
-    )
     start_time: Mapped[object | None] = mapped_column(Time)
     end_time: Mapped[object | None] = mapped_column(Time)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

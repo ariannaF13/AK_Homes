@@ -43,7 +43,18 @@ function showRequestForm(dateKey) {
     const requestForm = document.getElementById('requestForm');
     const selectedDate = document.getElementById('selectedDate');
 
+    const selectedAvailability = availability.find(
+        item => item.date === dateKey
+    );
+
+    if (!selectedAvailability) {
+        return;
+    }
+
     selectedDate.textContent = `You are requesting ${dateKey}.`;
+
+    // Remember which availability record the customer selected
+    requestForm.dataset.availabilityId = selectedAvailability.id;
 
     requestForm.style.display = 'block';
 
