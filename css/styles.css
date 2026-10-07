@@ -85,6 +85,7 @@ body {
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
+
 .calendar-header {
     display: flex;
     justify-content: space-between;
@@ -93,6 +94,7 @@ body {
     color: white;
     padding: 10px;
 }
+
 .calendar-header button {
     background: white;
     color: rgb(182, 124, 8);
@@ -101,30 +103,52 @@ body {
     cursor: pointer;
     border-radius: 4px;
 }
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
 }
-.day-name, .day {
+
+.day-name,
+.day {
     padding: 10px;
     border: 1px solid #ddd;
 }
+
 .day {
-    cursor: pointer;
     min-height: 60px;
     position: relative;
 }
-.day:hover {
-    background: #f0f8ff;
+
+/* Normal days */
+.day:not(.available) {
+    background: #ffffff;
+    color: #777;
 }
-.event-dot {
-    width: 6px;
-    height: 6px;
-    background:  rgb(255, 0, 0);
-    border-radius: 50%;
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
+
+/* Available days */
+.day.available {
+    background: #f4f8ed;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+/* Available day when mouse is over it */
+.day.available:hover {
+    background: #e4eed5;
+    transform: translateY(-2px);
+}
+
+/* Small "Available" label */
+.day.available::after {
+    content: "Available";
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    margin-top: 8px;
+    color: rgb(80, 110, 45);
 }

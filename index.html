@@ -45,6 +45,51 @@ Intended for AK homes, website project
                 <!-- Days will be generated here -->
             </div>
         </div>
+        <div id="requestForm" class="request-form" style="display: none;">
+
+            <h2>Request This Date</h2>
+
+            <p id="selectedDate"></p>
+
+            <form id="serviceRequestForm">
+
+                <label for="customerName">Name</label>
+                <input
+                    type="text"
+                    id="customerName"
+                    name="customerName"
+                    required
+                >
+
+                <label for="customerEmail">Email</label>
+                <input
+                    type="email"
+                    id="customerEmail"
+                    name="customerEmail"
+                    required
+                >
+
+                <label for="customerPhone">Phone</label>
+                <input
+                    type="tel"
+                    id="customerPhone"
+                    name="customerPhone"
+                >
+
+                <label for="requestNotes">Notes</label>
+                <textarea
+                    id="requestNotes"
+                    name="requestNotes"
+                    rows="4"
+                ></textarea>
+
+                <button type="submit">
+                    Submit Request
+                </button>
+
+            </form>
+
+        </div>
     </div>
 
 

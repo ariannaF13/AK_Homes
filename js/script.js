@@ -1,17 +1,11 @@
-
-
-
-async function loadComponent(id, file){
+async function loadComponent(id, file) {
     const res = await fetch(file);
     const html = await res.text();
     document.getElementById(id).innerHTML = html;
 }
 
-
-loadComponent("header", "header.html")
-loadComponent("footer", "footer.html")
-
-
+loadComponent("header", "header.html");
+loadComponent("footer", "footer.html");
 
 
 const monthYear = document.getElementById('monthYear');
@@ -20,13 +14,54 @@ const prevMonthBtn = document.getElementById('prevMonth');
 const nextMonthBtn = document.getElementById('nextMonth');
 
 let currentDate = new Date();
-let events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
+let availability = [];
 
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+
+// Get available dates from the Flask API
+async function loadAvailability() {
+    const response = await fetch('/api/availability');
+
+    if (!response.ok) {
+        throw new Error('Could not load availability.');
+    }
+
+    availability = await response.json();
+
+    renderCalendar(currentDate);
+}
+
+
+// Check whether a particular date is available
+function isDateAvailable(dateKey) {
+    return availability.some(item => item.date === dateKey);
+}
+
+function showRequestForm(dateKey) {
+
+    const requestForm = document.getElementById('requestForm');
+    const selectedDate = document.getElementById('selectedDate');
+
+    selectedDate.textContent = `You are requesting ${dateKey}.`;
+
+    requestForm.style.display = 'block';
+
+    requestForm.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+
 function renderCalendar(date) {
     calendarGrid.innerHTML = '';
-    monthYear.textContent = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    monthYear.textContent = date.toLocaleString('default', {
+        month: 'long',
+        year: 'numeric'
+    });
+
 
     // Day names
     dayNames.forEach(day => {
@@ -36,8 +71,19 @@ function renderCalendar(date) {
         calendarGrid.appendChild(div);
     });
 
-    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+    const firstDay = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        1
+    ).getDay();
+
+    const daysInMonth = new Date(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        0
+    ).getDate();
+
 
     // Empty slots before first day
     for (let i = 0; i < firstDay; i++) {
@@ -46,44 +92,52 @@ function renderCalendar(date) {
         calendarGrid.appendChild(emptyDiv);
     }
 
+
     // Days
     for (let day = 1; day <= daysInMonth; day++) {
+
         const dayDiv = document.createElement('div');
         dayDiv.classList.add('day');
         dayDiv.textContent = day;
 
-        const dateKey = `${date.getFullYear()}-${date.getMonth()}-${day}`;
-        if (events[dateKey]) {
-            const dot = document.createElement('div');
-            dot.classList.add('event-dot');
-            dayDiv.appendChild(dot);
+
+        // Create YYYY-MM-DD date
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const dayNumber = String(day).padStart(2, '0');
+
+        const dateKey = `${year}-${month}-${dayNumber}`;
+
+
+        // Check database availability
+        if (isDateAvailable(dateKey)) {
+
+            dayDiv.classList.add('available');
+
+            dayDiv.addEventListener('click', () => {
+                showRequestForm(dateKey);
+            });
         }
 
-        dayDiv.addEventListener('click', () => {
-            const eventText = prompt(`Enter request for ${day}/${date.getMonth()+1}/${date.getFullYear()}:`, events[dateKey] || '');
-            if (eventText !== null) {
-                if (eventText.trim() === '') {
-                    delete events[dateKey];
-                } else {
-                    events[dateKey] = eventText.trim();
-                }
-                localStorage.setItem('calendarEvents', JSON.stringify(events));
-                renderCalendar(currentDate);
-            }
-        });
 
         calendarGrid.appendChild(dayDiv);
     }
 }
+
 
 prevMonthBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     renderCalendar(currentDate);
 });
 
+
 nextMonthBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar(currentDate);
 });
 
-renderCalendar(currentDate);
+
+// Load availability when the page starts
+loadAvailability().catch(error => {
+    console.error(error);
+});
